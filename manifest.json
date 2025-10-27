@@ -1,0 +1,9 @@
+{
+  "short_name": "Timepass Katta",
+  "name": "Timepass Katta – PNG Overlay (User + Admin)",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#FF7A00",
+  "background_color": "#F8F9FA"
+}
