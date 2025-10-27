@@ -1,32 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Timepass Katta – PNG Overlay</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="/manifest.json">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_ID"
-     crossorigin="anonymous"></script>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.4",
-    "firebase/app": "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js",
-    "firebase/storage": "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js",
-    "firebase/": "https://aistudiocdn.com/firebase@^12.4.0/",
-    "uuid": "https://aistudiocdn.com/uuid@^13.0.0"
-  }
-}
-</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Timepass Katta – Create</title>
+  <link rel="stylesheet" href="./css/ui.css">
+  <meta name="theme-color" content="#FF7A00">
 </head>
-<body class="bg-[#F8F9FA]">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+<body>
+  <header class="tk-header">
+    <div class="left">
+      <img src="./assets/logo-tk.png" alt="TK" class="logo" onerror="this.style.display='none'">
+      <div class="brand">
+        <h1>Timepass Katta</h1>
+        <p>Create | Share | Repeat</p>
+      </div>
+    </div>
+    <a class="admin-link" href="./tpk-dev-zone/">Admin</a>
+  </header>
+
+  <section class="hero">
+    <div class="gradient"></div>
+    <div class="cta">
+      <button id="pickBtn" class="btn primary">Pick a Photo</button>
+      <input id="fileInput" type="file" accept="image/*" hidden>
+      <p class="hint">No login. Instant edit. Totally free.</p>
+    </div>
+  </section>
+
+  <main class="editor">
+    <div class="canvas-wrap">
+      <canvas id="stage" width="750" height="750"></canvas>
+      <div class="tips">Pinch to zoom • Drag to move • Double tap to fit</div>
+    </div>
+
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab active" data-tab="frames">Frames</button>
+        <button class="tab" data-tab="text">Text</button>
+        <button class="tab" data-tab="share">Share</button>
+      </div>
+
+      <div class="panel show" id="panel-frames">
+        <div id="frames" class="chips"></div>
+      </div>
+
+      <div class="panel" id="panel-text">
+        <div class="row">
+          <input id="addText" placeholder="Add a caption…" />
+          <button id="addTextBtn" class="btn">Add</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-share">
+        <div class="row actions">
+          <button id="downloadBtn" class="btn">Download</button>
+          <button id="shareBtn" class="btn outline">Share</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button id="resetBtn" title="Reset">Reset</button>
+    <button id="fitBtn" title="Fit">Fit</button>
+    <button id="flipBtn" title="Flip">Flip</button>
+  </nav>
+
+  <script type="module">
+    import { uploadFile } from './js/modules/storage.js';
+    import './js/modules/editor.js';
+
+    window.tkSaveToCloud = async (blob) => {
+      try {
+        const file = new File([blob], `tpk-${Date.now()}.png`, { type: 'image/png' });
+        const res = await uploadFile(file, 'exports');
+        console.log('Saved to Firebase:', res.url);
+      } catch (e) {
+        console.warn('Upload to Firebase skipped:', e.message);
+      }
+    };
+  </script>
 </body>
 </html>
