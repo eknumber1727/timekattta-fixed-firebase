@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TPK Admin</title>
+<link rel="stylesheet" href="../styles-tk.css">
+</head>
+<body>
+<header><h1>TPK Admin Portal</h1></header>
+<main class="card">
+  <section id="auth-box">
+    <h3>Admin Login</h3>
+    <input id="email" placeholder="Admin email">
+    <input id="pass" placeholder="Password" type="password">
+    <button id="login">Login</button>
+    <p id="auth-msg"></p>
+  </section>
+
+  <section id="admin-ui" class="hidden">
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
+      <h3>Uploads</h3>
+      <button id="logout">Logout</button>
+    </div>
+    <div>
+      <input id="newFile" type="file" />
+      <button id="uploadNew">Upload</button>
+    </div>
+    <ul id="list"></ul>
+  </section>
+</main>
+
+<script type="module">
+  import { emailPasswordLogin, logout, watchAuth } from '../js/modules/auth.js';
+  import { uploadFile, listUploads, deleteByPath } from '../js/modules/storage.js';
+
+  const authBox = document.getElementById('auth-box');
+  const adminUI = document.getElementById('admin-ui');
+  const msg = document.getElementById('auth-msg');
+
+  document.getElementById('login').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('pass').value;
+    try {
+      await emailPasswordLogin(email, pass);
+    } catch(e) {
+      msg.textContent = e.message;
+      console.error(e);
+    }
+  });
+
+  document.getElementById('logout').addEventListener('click', async () => {
+    await logout();
+  });
+
+  async function renderList() {
+    const ul = document.getElementById('list');
+    ul.innerHTML = '<li>Loading...</li>';
+    try {
+      const items = await listUploads('uploads');
+      ul.innerHTML = '';
+      for (const it of items) {
+        const li = document.createElement('li');
+        li.textContent = it.fullPath;
+        const del = document.createElement('button');
+        del.textContent = 'Delete';
+        del.addEventListener('click', async () => {
+          if (confirm('Delete ' + it.fullPath + '?')) {
+            await deleteByPath(it.fullPath);
+            await renderList();
+          }
+        });
+        li.appendChild(del);
+        ul.appendChild(li);
+      }
+    } catch(e) {
+      ul.innerHTML = '<li>Error: ' + e.message + '</li>';
+    }
+  }
+
+  document.getElementById('uploadNew').addEventListener('click', async () => {
+    const file = document.getElementById('newFile').files[0];
+    if (!file) return alert('Pick a file');
+    await uploadFile(file);
+    await renderList();
+  });
+
+  watchAuth(user => {
+    if (user) {
+      authBox.classList.add('hidden');
+      adminUI.classList.remove('hidden');
+      renderList();
+    } else {
+      adminUI.classList.add('hidden');
+      authBox.classList.remove('hidden');
+    }
+  });
+</script>
+</body>
+</html>
